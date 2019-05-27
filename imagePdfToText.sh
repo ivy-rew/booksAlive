@@ -28,11 +28,18 @@ function ocrFractured(){
 
 function mergePages(){
     # wrap single .txt files into one: but keep divs around pages for easier structure in epub
-    txtBook=$WORK/fullBook.txt
-    find $pagesdir -name "*.txt" -exec echo "<div id={}>\n" > $txtBook \; -exec cat "{}" > $txtBook \; -exec echo "</div>" > $txtBook \;
+    txtBook=$WORK/fullBook-$ts.txt
+    for text in `ls -v $pagesdir/page*.txt`
+    do
+        echo "processing "+$text
+        echo "<div id=$text>\n" >> $txtBook
+        cat $text >> $txtBook 
+        echo "</div>" >> $txtBook
+    done
     echo "created $txtBook"
 }
 
+# run!
 extractPdfImages
 ocrFractured
 mergePages
