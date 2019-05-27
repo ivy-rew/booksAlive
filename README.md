@@ -12,6 +12,8 @@ The book "Peterli am Lift" from "Niklaus Bolt" has been scanned by google. While
 More ?
 - https://archive.org/details/smmtlichewerke01stilgoog/page/n1
 
+Search
+- https://openlibrary.org
 
 
 ### Conversion Scripts
