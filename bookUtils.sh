@@ -6,20 +6,22 @@ if [ ! -z "$1" ]
   then
     WORK=$1
 fi
-mkdir -p "$WORK"
 echo "0. working with $WORK"
+mkdir -p "$WORK"
 
+pdf=$2
 pagesdir=$WORK/pages
+
 function extractPdfImages(){
     # extract images from PDF
-    echo "1. extracting images in $1"
+    echo "1. extracting images in $pdf"
     if ! [ -x "$(command -v pdfimages)" ]; then
       sudo apt install -y poppler-utils
     fi
     mkdir -p "$pagesdir"
-    pdfimages -j -p "$1" "$pagesdir/page"
+    pdfimages -j -p "$pdf" "$pagesdir/page"
     # only conver from pages 10 to 15 : testing settings!
-    #pdfimages -f 10 -l 15 -j -p "$1" "$pagesdir/page"
+    #pdfimages -f 10 -l 15 -j -p "$pdf" "$pagesdir/page"
 }
 
 function ocrFractured(){
@@ -42,8 +44,3 @@ function mergePages(){
     done
     echo "created $txtBook"
 }
-
-# run!
-extractPdfImages
-ocrFractured
-mergePages

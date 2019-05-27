@@ -22,5 +22,5 @@ The script relies on popular PDF tooling (poppler) and an OCR scanner (tesseract
 Scripts were crafted and designed to run on a debian based operating system such as Ubuntu (tested with Linux Mint 18).
 ```
 wget https://archive.org/download/peterliamlift00boltgoog/peterliamlift00boltgoog.pdf
-./imagesPdf2Text.sh peterliamlift00boltgoog.pdf
+./revealLetters.sh peterliamlift00boltgoog.pdf
 ```
