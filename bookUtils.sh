@@ -10,7 +10,7 @@ echo "0. working with $WORK"
 mkdir -p "$WORK"
 
 pdf=$2
-pagesdir=$WORK/pages
+pagesdir="$WORK/pages"
 
 function extractPdfImages(){
     # extract images from PDF
