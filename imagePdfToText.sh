@@ -13,7 +13,9 @@ pagesdir=$WORK/pages
 function extractPdfImages(){
     # extract images from PDF
     echo "1. extracting images in $1"
-    sudo apt install -y poppler-utils
+    if ! [ -x "$(command -v pdfimages)" ]; then
+      sudo apt install -y poppler-utils
+    fi
     mkdir -p "$pagesdir"
     pdfimages -j -p "$1" "$pagesdir/page"
     # only conver from pages 10 to 15 : testing settings!
@@ -22,7 +24,9 @@ function extractPdfImages(){
 
 function ocrFractured(){
     # recognize fractured german text in raw images:
-    sudo apt install -y tessseract-ocr tesseract-ocr-deu-frak
+    if ! [ -x "$(command -v tesseract)" ]; then
+      sudo apt install -y tessseract-ocr tesseract-ocr-deu-frak
+    fi
     find "$pagesdir" -name "page*" -exec echo "OCR on {}" \; -exec tesseract {} {}text -l deu_frak  \;
 }
 
