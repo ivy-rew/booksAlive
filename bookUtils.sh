@@ -34,13 +34,14 @@ function ocrFractured(){
 
 function mergePages(){
     # wrap single .txt files into one: but keep divs around pages for easier structure in epub
-    txtBook=$WORK/fullBook-$ts.txt
-    for text in `ls -v $pagesdir/page*.txt`
+    cd "$WORK"
+    txtBook="fullBook-$ts.txt"
+    for text in `ls -v pages/page*.txt`
     do
         echo "processing "+$text
-        echo "<div id=$text>\n" >> $txtBook
-        cat $text >> $txtBook 
-        echo "</div>" >> $txtBook
+        echo "<div id=$text>\n" >> "$txtBook"
+        cat $text >> "$txtBook"
+        echo "</div>" >> "$txtBook"
     done
     echo "created $txtBook"
 }
