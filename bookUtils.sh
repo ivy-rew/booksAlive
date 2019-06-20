@@ -74,53 +74,75 @@ function bookToEPUB()
     pandoc -o $epub $chapters
 }
 
+function pageToPDF()
+{
+    #pdf with original image + revised OCR text
+    text="$1"
+    pdfDir="$2"
+
+    md=`basename $text`
+    page=${md:0:-3}
+    no=${page:5:3}
+    
+    #img
+    imgPdf="$pdfDir/img/$page.pdf"
+    if ! [ -f "$imgPdf" ]; then
+        echo "extracting $imgPdf"
+        pdfseparate -f $no -l $no $pdf $imgPdf
+    fi
+
+    #txt
+    txtPdf="$pdfDir/txt/$page.pdf"
+    if ! [ -f "$txtPdf" ]; then
+        echo "creating $txtPdf"
+        pandoc $text --latex-engine=xelatex -o $txtPdf
+    fi
+
+    #merge
+    joinPdf="$pdfDir/join/$page.pdf"
+    if ! [ -f "$joinPdf" ]; then
+        echo "creating $joinPdf"
+        pdfunite $imgPdf $txtPdf $joinPdf
+    fi
+}
 
 pdfDir="$WORK/pdf"
 function pagesToPDF()
 {
-    #pdf with original image + revised OCR text
+    container=""
+    if [ ! -z "$1" ]
+      then
+        container=$1
+    fi
+
+    # latex deps
     if ! [ -x "$(command -v xetex)" ]; then
       sudo apt install -y texlive-xetex texlive-fonts-recommended
     fi
+
+    mkdir -p "$pdfDir"
+    pdfDir="$pdfDir$container"
     mkdir -p "$pdfDir"
     mkdir -p "$pdfDir/img"
     mkdir -p "$pdfDir/txt"
     mkdir -p "$pdfDir/join"
 
-    for text in `ls -v $textdir/*.md`
+    for text in `ls -v $textdir$container/*.md`
     do
-        md=`basename $text`
-        page=${md:0:-3}
-        no=${page:5:3}
-        
-        #img
-        imgPdf="$pdfDir/img/$page.pdf"
-        if ! [ -f "$imgPdf" ]; then
-            echo "extracting $imgPdf"
-            pdfseparate -f $no -l $no $pdf $imgPdf
-        fi
-
-        #txt
-        txtPdf="$pdfDir/txt/$page.pdf"
-        if ! [ -f "$txtPdf" ]; then
-            echo "creating $txtPdf"
-            pandoc $text --latex-engine=xelatex -o $txtPdf
-        fi
-
-        #merge
-        joinPdf="$pdfDir/$page.pdf"
-        if ! [ -f "$joinPdf" ]; then
-            echo "creating $joinPdf"
-            pdfunite $imgPdf $txtPdf $joinPdf
-        fi
+        pageToPDF "$text" "$pdfDir"
     done
+    
+    # merge pages
+    pages=`ls -v $pdfDir/join/*.pdf`
+    pdfBook="$pdfDir.pdf"
+    echo "creating $pdfBook"
+    pdfunite $pages $pdfBook
 }
-
 
 function bookToPDF()
 {
     pdfBook="$bookdir/$bookName.pdf"
-    pages=`ls -v $pdfDir/*.pdf`
+    pages=`ls -v $pdfDir/join/*.pdf`
     echo "creating $pdfBook"
     pdfunite $pages $pdfBook
 }
