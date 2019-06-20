@@ -10,8 +10,10 @@ echo "0. working with $WORK"
 mkdir -p "$WORK"
 
 pdf=$2
-pagesdir="$WORK/pages"
+bookName=`basename $pdf`
+bookName=${bookName:0:-4}
 
+pagesdir="$WORK/pages"
 function extractPdfImages(){
     # extract images from PDF
     echo "1. extracting images in $pdf"
@@ -19,29 +21,59 @@ function extractPdfImages(){
       sudo apt install -y poppler-utils
     fi
     mkdir -p "$pagesdir"
-    pdfimages -j -p "$pdf" "$pagesdir/page"
-    # only conver from pages 10 to 15 : testing settings!
+    pdfimages -png -p "$pdf" "$pagesdir/page"
+    # only convert from pages 10 to 15 : testing settings!
     #pdfimages -f 10 -l 15 -j -p "$pdf" "$pagesdir/page"
 }
 
+textdir="$WORK/text"
 function ocrFractured(){
     # recognize fractured german text in raw images:
     if ! [ -x "$(command -v tesseract)" ]; then
       sudo apt install -y tessseract-ocr tesseract-ocr-deu-frak
     fi
-    find "$pagesdir" -name "page*" -exec echo "OCR on {}" \; -exec tesseract {} {}text -l deu_frak  \;
+    mkdir -p "$textdir"
+    for img in `ls -v $pagesdir/page*.png`
+    do
+        png=`basename $img`
+        page=${png:0:-4} #no-file-ext
+        md=$page.md
+        if ! [ -f "$textdir/$md" ]; then        
+            echo "OCR on $img"
+            tesseract $img $textdir/$page -l deu_frak
+            mv "$textdir/$page.txt" "$textdir/$md"
+        fi
+    done
 }
 
-function mergePages(){
-    # wrap single .txt files into one: but keep divs around pages for easier structure in epub
-    cd "$WORK"
-    txtBook="fullBook-$ts.txt"
-    for text in `ls -v pages/page*.txt`
+bookdir="$WORK/book"
+function collectMarkdown()
+{
+    book=$bookName.md
+    mkdir -p "$bookdir"
+    bookfile="$bookdir/$book"
+    for text in `ls -v $textdir/*.md`
     do
+        #skip empty files...
         echo "processing "+$text
-        echo "<div id=$text>\n" >> "$txtBook"
-        cat $text >> "$txtBook"
-        echo "</div>" >> "$txtBook"
+        echo "<div id=$text>" >> "$bookfile"
+        cat $text >> "$bookfile"
+        echo "</div>" >> "$bookfile"
     done
-    echo "created $txtBook"
+    echo "created $book"
 }
+
+function bookToEPUB()
+{
+    if ! [ -x "$(command -v pandoc)" ]; then
+      sudo apt install -y pandoc
+    fi
+    epub="$bookdir/$bookName.epub"
+    chapters=`ls -v $bookdir/*.md`
+    echo "creating $epub"
+    pandoc -o $epub $chapters
+}
+
+
+
+

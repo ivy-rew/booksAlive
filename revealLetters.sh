@@ -11,4 +11,5 @@ source $MY_PATH/bookUtils.sh "$WORK" "$PDF"
 
 extractPdfImages
 ocrFractured
-mergePages
+collectMarkdown
+bookToEPUB
