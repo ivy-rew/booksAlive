@@ -78,28 +78,28 @@ function pageToPDF()
 {
     #pdf with original image + revised OCR text
     text="$1"
-    pdfDir="$2"
+    pDir="$2"
 
     md=`basename $text`
     page=${md:0:-3}
     no=${page:5:3}
     
     #img
-    imgPdf="$pdfDir/img/$page.pdf"
+    imgPdf="$pDir/img/$page.pdf"
     if ! [ -f "$imgPdf" ]; then
         echo "extracting $imgPdf"
         pdfseparate -f $no -l $no $pdf $imgPdf
     fi
 
     #txt
-    txtPdf="$pdfDir/txt/$page.pdf"
+    txtPdf="$pDir/txt/$page.pdf"
     if ! [ -f "$txtPdf" ]; then
         echo "creating $txtPdf"
         pandoc $text --latex-engine=xelatex -o $txtPdf
     fi
 
     #merge
-    joinPdf="$pdfDir/join/$page.pdf"
+    joinPdf="$pDir/join/$page.pdf"
     if ! [ -f "$joinPdf" ]; then
         echo "creating $joinPdf"
         pdfunite $imgPdf $txtPdf $joinPdf
@@ -121,20 +121,21 @@ function pagesToPDF()
     fi
 
     mkdir -p "$pdfDir"
-    pdfDir="$pdfDir$container"
-    mkdir -p "$pdfDir"
-    mkdir -p "$pdfDir/img"
-    mkdir -p "$pdfDir/txt"
-    mkdir -p "$pdfDir/join"
+    containerDir="$pdfDir$container"
+    mkdir -p "$containerDir"
+    mkdir -p "$containerDir/img"
+    mkdir -p "$containerDir/txt"
+    mkdir -p "$containerDir/join"
 
+    echo "pages to PDF: $containerDir"
     for text in `ls -v $textdir$container/*.md`
     do
-        pageToPDF "$text" "$pdfDir"
+        pageToPDF "$text" "$containerDir"
     done
     
     # merge pages
-    pages=`ls -v $pdfDir/join/*.pdf`
-    pdfBook="$pdfDir.pdf"
+    pages=`ls -v $containerDir/join/*.pdf`
+    pdfBook="$containerDir.pdf"
     echo "creating $pdfBook"
     pdfunite $pages $pdfBook
 }
