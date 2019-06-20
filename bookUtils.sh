@@ -114,6 +114,7 @@ function pagesToPDF()
       then
         container=$1
     fi
+    echo $container
 
     # latex deps
     if ! [ -x "$(command -v xetex)" ]; then
@@ -121,29 +122,36 @@ function pagesToPDF()
     fi
 
     mkdir -p "$pdfDir"
-    containerDir="$pdfDir$container"
+    containerDir="$pdfDir/$container"
     mkdir -p "$containerDir"
     mkdir -p "$containerDir/img"
     mkdir -p "$containerDir/txt"
     mkdir -p "$containerDir/join"
 
     echo "pages to PDF: $containerDir"
-    for text in `ls -v $textdir$container/*.md`
+    for text in `ls -v $textdir/$container/*.md`
     do
         pageToPDF "$text" "$containerDir"
     done
     
     # merge pages
     pages=`ls -v $containerDir/join/*.pdf`
-    pdfBook="$containerDir.pdf"
-    echo "creating $pdfBook"
-    pdfunite $pages $pdfBook
+    pdfContainer="$containerDir.pdf"
+    echo "creating $pdfContainer"
+    pdfunite $pages $pdfContainer
 }
 
 function bookToPDF()
 {
+    mkdir -p "$bookdir"
     pdfBook="$bookdir/$bookName.pdf"
-    pages=`ls -v $pdfDir/join/*.pdf`
-    echo "creating $pdfBook"
-    pdfunite $pages $pdfBook
+    for chapter in `ls -v $textdir/*/ -d`
+    do
+        chapter=`basename $chapter`
+        pagesToPDF $chapter
+    done
+
+    parts=`ls -v $pdfDir/*.pdf`
+    echo "creating final $pdfBook"
+    pdfunite $parts $pdfBook
 }
