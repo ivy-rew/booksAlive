@@ -75,5 +75,52 @@ function bookToEPUB()
 }
 
 
+pdfDir="$WORK/pdf"
+function pagesToPDF()
+{
+    #pdf with original image + revised OCR text
+    if ! [ -x "$(command -v xetex)" ]; then
+      sudo apt install -y texlive-xetex texlive-fonts-recommended
+    fi
+    mkdir -p "$pdfDir"
+    mkdir -p "$pdfDir/img"
+    mkdir -p "$pdfDir/txt"
+    mkdir -p "$pdfDir/join"
+
+    for text in `ls -v $textdir/*.md`
+    do
+        md=`basename $text`
+        page=${md:0:-3}
+        no=${page:5:3}
+        
+        #img
+        imgPdf="$pdfDir/img/$page.pdf"
+        if ! [ -f "$imgPdf" ]; then
+            echo "extracting $imgPdf"
+            pdfseparate -f $no -l $no $pdf $imgPdf
+        fi
+
+        #txt
+        txtPdf="$pdfDir/txt/$page.pdf"
+        if ! [ -f "$txtPdf" ]; then
+            echo "creating $txtPdf"
+            pandoc $text --latex-engine=xelatex -o $txtPdf
+        fi
+
+        #merge
+        joinPdf="$pdfDir/$page.pdf"
+        if ! [ -f "$joinPdf" ]; then
+            echo "creating $joinPdf"
+            pdfunite $imgPdf $txtPdf $joinPdf
+        fi
+    done
+}
 
 
+function bookToPDF()
+{
+    pdfBook="$bookdir/$bookName.pdf"
+    pages=`ls -v $pdfDir/*.pdf`
+    echo "creating $pdfBook"
+    pdfunite $pages $pdfBook
+}

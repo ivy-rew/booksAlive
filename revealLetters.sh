@@ -13,3 +13,4 @@ extractPdfImages
 ocrFractured
 collectMarkdown
 bookToEPUB
+bookToPDF
