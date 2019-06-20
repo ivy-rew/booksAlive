@@ -137,8 +137,10 @@ function pagesToPDF()
     # merge pages
     pages=`ls -v $containerDir/join/*.pdf`
     pdfContainer="$containerDir.pdf"
-    echo "creating $pdfContainer"
-    pdfunite $pages $pdfContainer
+    if ! [ -f "$pdfContainer" ]; then
+        echo "creating $pdfContainer"
+        pdfunite $pages $pdfContainer
+    fi
 }
 
 function bookToPDF()
