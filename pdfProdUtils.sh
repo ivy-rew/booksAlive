@@ -26,10 +26,14 @@ function pageToPDF()
     fi
 
     #txt
+    pdfYaml="$WORK/pdf-meta.yaml"
+    if ! [ -f "$pdfYaml" ]; then
+      pdfYaml=""
+    fi
     txtPdf="$pDir/txt/$page.pdf"
     if ! [ -f "$txtPdf" ]; then
         echo "creating $txtPdf"
-        pandoc $text --latex-engine=xelatex -o $txtPdf
+        pandoc $text $pdfYaml --latex-engine=xelatex -o $txtPdf
     fi
 
     #merge
