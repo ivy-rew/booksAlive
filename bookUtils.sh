@@ -30,7 +30,7 @@ textdir="$WORK/text"
 function ocrFractured(){
     # recognize fractured german text in raw images:
     if ! [ -x "$(command -v tesseract)" ]; then
-      sudo apt install -y tessseract-ocr tesseract-ocr-deu-frak
+      sudo apt install -y tesseract-ocr tesseract-ocr-deu-frak
     fi
     mkdir -p "$textdir"
     for img in `ls -v $pagesdir/page*.png`
