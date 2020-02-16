@@ -28,6 +28,11 @@ function extractPdfImages(){
 
 textdir="$WORK/text"
 function ocrFractured(){
+    LANG="deu_frak"
+    if [ ! -z "$1" ]
+      then
+        LANG=$1
+    fi
     # recognize fractured german text in raw images:
     if ! [ -x "$(command -v tesseract)" ]; then
       sudo apt install -y tesseract-ocr tesseract-ocr-deu-frak
@@ -40,7 +45,7 @@ function ocrFractured(){
         md=$page.md
         if ! [ -f "$textdir/$md" ]; then        
             echo "OCR on $img"
-            tesseract $img $textdir/$page -l deu_frak
+            tesseract $img $textdir/$page -l $LANG
             mv "$textdir/$page.txt" "$textdir/$md"
         fi
     done
