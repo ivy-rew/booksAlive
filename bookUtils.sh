@@ -29,8 +29,7 @@ function extractPdfImages(){
 textdir="$WORK/text"
 function ocrFractured(){
     LANG="deu_frak"
-    if [ ! -z "$1" ]
-      then
+    if [ ! -z "$1" ]; then
         LANG=$1
     fi
     # recognize fractured german text in raw images:
@@ -79,3 +78,12 @@ function bookToEPUB()
     pandoc -o $epub $chapters
 }
 
+function bookToKindle()
+{
+  epub="$bookdir/$bookName.epub"
+  kindle="$bookdir/$bookName.azw3"
+  if ! [ -x "$(command -v ebook-convert)" ]; then
+    echo "can't create kindle e-book: install 'CALIBRE' to enable kindle conversion."
+  fi
+  ebook-convert "$epub" "$kindle"
+}
